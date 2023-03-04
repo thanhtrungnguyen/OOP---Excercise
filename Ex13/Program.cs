@@ -10,6 +10,9 @@ namespace Ex13
     {
         static void Main(string[] args)
         {
+            Manager.AddSampleData();
+            Manager.Menu();
+
         }
     }
 }

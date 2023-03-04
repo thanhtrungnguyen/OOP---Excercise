@@ -43,8 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Certificate.cs" />
+    <Compile Include="Entities\Employee.cs" />
+    <Compile Include="Entities\Experience.cs" />
+    <Compile Include="Entities\Fresher.cs" />
+    <Compile Include="Entities\Intern.cs" />
+    <Compile Include="Manager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
