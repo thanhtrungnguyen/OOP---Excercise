@@ -1,13 +1,21 @@
-﻿using System;
+﻿using Ex15.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Ex15
 {
     internal class Manager
     {
+        private static List<Major> majors = new List<Major>() { };
+        enum StudentType
+        {
+            RegularStudent,
+            ExchangeStudent
+        }
 
         enum MenuOption
         {
@@ -21,7 +29,7 @@ namespace Ex15
             ViewGoodStudent,
             ViewHighestMarkOfEachSemester,
             ViewSortedListByStartYear,
-            ViewNumberOfStudentByYear,
+            ViewNumberOfStudentsByYear,
             Exit
         }
         public static void Menu()
@@ -75,65 +83,277 @@ namespace Ex15
                     case MenuOption.ViewSortedListByStartYear:
                         ViewSortedListByStartYear();
                         break;
-                    case MenuOption.ViewNumberOfStudentByYear:
-                        ViewNumberOfStudentByYear();
+                    case MenuOption.ViewNumberOfStudentsByYear:
+                        ViewNumberOfStudentsByYear();
                         break;
                     case MenuOption.Exit:
                         return;
                 }
             }
         }
-        public static void ListAll() { }
-        private static void ViewNumberOfStudentByYear()
+
+        private static StudentType ChooseStudentType()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("1. Regular student");
+            Console.WriteLine("2. Exchange student");
+            Console.WriteLine("Choose one:");
+            StudentType option = (StudentType)Validation.CheckOption(Enum.GetNames(typeof(MenuOption)).Length);
+            return option;
+        }
+
+        private static void ViewNumberOfStudentsByYear()
+        {
+            majors.ForEach(major =>
+            {
+                Console.WriteLine(major.Name);
+                Dictionary<int, int> yearNumberOfStudentPairs = new Dictionary<int, int>();
+                major.Students.ForEach(student =>
+                {
+                    if (!yearNumberOfStudentPairs.ContainsKey(student.StartYear))
+                    {
+                        yearNumberOfStudentPairs.Add(student.StartYear, 1);
+                    }
+                    else
+                    {
+                        yearNumberOfStudentPairs[student.StartYear]++;
+                    }
+                });
+                Console.WriteLine("{0}: {1}", yearNumberOfStudentPairs.Keys, yearNumberOfStudentPairs.Values);
+            });
         }
 
         private static void ViewSortedListByStartYear()
         {
-            throw new NotImplementedException();
+            majors.ForEach(major =>
+            {
+                Console.WriteLine(major.Name);
+                List<Student> sorted = major.Students.OrderBy(s => s.StartYear).ToList();
+                sorted.ForEach(student =>
+                {
+                    student.Show();
+                });
+            });
         }
 
         private static void ViewHighestMarkOfEachSemester()
         {
-            throw new NotImplementedException();
+            int count = 0;
+            majors.ForEach(major =>
+            {
+                Console.WriteLine(major.Name);
+                Dictionary<string, float> semesterWithHighestMark = new Dictionary<string, float>();
+                major.Students.ForEach(student =>
+                {
+                    student.MarkReports.ForEach(markReport =>
+                    {
+                        if (!semesterWithHighestMark.ContainsKey(markReport.SemesterName))
+                        {
+                            semesterWithHighestMark.Add(markReport.SemesterName, markReport.AverageMark);
+                            count++;
+                        }
+                        else
+                        {
+                            if (semesterWithHighestMark[markReport.SemesterName] < markReport.AverageMark)
+                            {
+                                semesterWithHighestMark[markReport.SemesterName] = markReport.AverageMark;
+                            }
+                        }
+                    });
+
+                });
+                foreach (var item in semesterWithHighestMark)
+                {
+                    Console.WriteLine("Semester: {0} - Highest mark: {1}", item.Key, item.Value);
+                }
+            });
+            if (count == 0) Console.WriteLine("No data!");
         }
 
         private static void ViewGoodStudent()
         {
-            throw new NotImplementedException();
+            const float goodMark = 8;
+            int count = 0;
+            majors.ForEach(major =>
+            {
+                Console.WriteLine(major.Name);
+                major.Students.ForEach(student =>
+                {
+                    if (student.MarkReports.LastOrDefault().AverageMark >= goodMark)
+                    {
+                        student.Show();
+                        count++;
+                    }
+                });
+            });
+            if (count == 0) Console.WriteLine("Not found!");
         }
 
         private static void ViewExchangeStudent()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter partner institution:");
+            string partnerInstitutionEntered = Validation.CheckInputString();
+            int count = 0;
+            majors.ForEach(m =>
+            {
+                Console.WriteLine(m.Name);
+                m.Students.ForEach(student =>
+                {
+                    if (student.GetType() == typeof(StudentExchange))
+                    {
+                        StudentExchange studentExchange = (StudentExchange)student;
+                        if (string.Equals(studentExchange.PartnerInstitution, partnerInstitutionEntered, StringComparison.OrdinalIgnoreCase))
+                        {
+                            student.Show();
+                            count++;
+                        }
+                    }
+                });
+            });
+            if (count == 0) Console.WriteLine("Not found!");
         }
 
         private static void ViewHighestEntryPointOfEachMajor()
         {
-            throw new NotImplementedException();
+            majors.ForEach(m =>
+            {
+                float highest = m.Students.Max(s => s.EntryPoint);
+                Console.WriteLine("{0} - Highest entry point: {1}", m.Name, highest);
+            });
         }
 
         private static void ViewTotalStudentsOfEachMajor()
         {
-            throw new NotImplementedException();
+            majors.ForEach(m =>
+            {
+                Console.WriteLine("{0} - Total student: {1}", m.Name, m.Students.Count);
+            });
         }
 
         private static void ViewAverageScore()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter semester:");
+            string semesterEntered = Validation.CheckInputString();
+            int count = 0;
+            majors.ForEach(m =>
+            {
+                m.Students.ForEach(s =>
+                {
+                    s.MarkReports.ForEach(mr =>
+                    {
+                        if (string.Equals(mr.SemesterName, semesterEntered, StringComparison.OrdinalIgnoreCase))
+                        {
+                            s.Show();
+                            count++;
+                        }
+                    });
+                });
+            });
+            if (count == 0)
+            {
+                Console.WriteLine("Not found!");
+            }
         }
 
         private static void ViewInformation()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter student ID:");
+            string id = Validation.CheckInputString();
+            Student student = null;
+            majors.ForEach(m =>
+            {
+                m.Students.ForEach(s =>
+                {
+                    if (string.Equals(s.ID, id, StringComparison.OrdinalIgnoreCase))
+                    {
+                        student = s;
+                    }
+                });
+            });
+            if (student == null)
+            {
+                Console.WriteLine("Not found!");
+                return;
+            }
+            student.Show();
         }
 
         private static void AddStudent()
         {
-            throw new NotImplementedException();
+            switch (ChooseStudentType())
+            {
+                case StudentType.RegularStudent:
+                    AddRegularStudent();
+                    break;
+                case StudentType.ExchangeStudent:
+                    AddExchangeStudent();
+                    break;
+            }
+        }
+        private static Student CreateStudent()
+        {
+            Console.WriteLine("Enter ID:");
+            string id = Validation.CheckInputString();
+            Console.WriteLine("Enter name:");
+            string name = Validation.CheckInputString();
+            Console.WriteLine("Enter BirthDate:");
+            DateTime birthDate = Validation.CheckInputDate();
+            Console.WriteLine("Enter StartYear:");
+            int startYear = Validation.CheckInputIntLimit(1, 3000);
+            Console.WriteLine("Enter EntryPoint:");
+            float entryPoint = Validation.CheckInputFloatLimit(0, 10);
+            Console.WriteLine("Enter MarkReport:");
+            List<MarkReport> markReports = CreateMarkReports();
+            Student student = new Student(id, name, birthDate, startYear, entryPoint, markReports);
+            return student;
+        }
+        private static List<MarkReport> CreateMarkReports()
+        {
+            List<MarkReport> markReports = new List<MarkReport>();
+            while (true)
+            {
+                Console.WriteLine("Enter SemesterName:");
+                string name = Validation.CheckInputString();
+                Console.WriteLine("Enter AverageMark:");
+                float averageMark = Validation.CheckInputFloatLimit(0, 10);
+                MarkReport markReport = new MarkReport(name, averageMark);
+                markReports.Add(markReport);
+                Console.WriteLine("Continue?[y/n]");
+                bool option = Validation.CheckInputBoolean();
+                if (!option) { return markReports; }
+            }
+        }
+        private static void AddStudentToMajor(Student student)
+        {
+            Console.WriteLine("Enter Major:");
+            string majorName = Validation.CheckInputString();
+            Major foundMajor = majors.Find(m => m.Name == majorName);
+            if (foundMajor != null)
+            {
+                foundMajor.AddStudent(student);
+                return;
+            }
+            Major newMajor = new Major(majorName);
+            newMajor.AddStudent(student);
+            majors.Add(newMajor);
+            Console.WriteLine("Added!");
+        }
+        private static void AddRegularStudent()
+        {
+            Student student = CreateStudent();
+            AddStudentToMajor(student);
         }
 
-
+        private static void AddExchangeStudent()
+        {
+            Student student = CreateStudent();
+            Console.WriteLine("Enter PartnerInstitution:");
+            string partnerInstitution = Validation.CheckInputString();
+            Student studentExchange = new StudentExchange(student.ID, student.Fullname, student.BirthDate, student.StartYear, student.EntryPoint, student.MarkReports, partnerInstitution);
+            AddStudentToMajor(studentExchange);
+        }
+        public static void ListAll()
+        {
+            majors.ForEach(m => m.Students.ForEach(s => s.Show()));
+        }
     }
 }

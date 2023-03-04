@@ -16,7 +16,28 @@ namespace Ex15
             {
                 try
                 {
-                    int input = Convert.ToInt32(Console.ReadLine());
+                    int input = Convert.ToInt32(Console.ReadLine().Trim());
+                    if (input < min || input > max)
+                    {
+                        throw new FormatException();
+                    }
+                    return input;
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Invalid format, input must be in range {0} - {1}!", min, max);
+                    Console.WriteLine("Enter again: ");
+                }
+            }
+        }
+
+        public static float CheckInputFloatLimit(int min, int max)
+        {
+            while (true)
+            {
+                try
+                {
+                    float input = float.Parse(Console.ReadLine().Trim(), CultureInfo.InvariantCulture.NumberFormat);
                     if (input < min || input > max)
                     {
                         throw new FormatException();
@@ -37,7 +58,7 @@ namespace Ex15
             {
                 try
                 {
-                    int input = Convert.ToInt32(Console.ReadLine());
+                    int input = Convert.ToInt32(Console.ReadLine().Trim());
                     if (input < defautFirstOption || input > max)
                     {
                         throw new FormatException();
@@ -56,7 +77,7 @@ namespace Ex15
         {
             while (true)
             {
-                string input = Console.ReadLine();
+                string input = Console.ReadLine().Trim();
                 if (!String.IsNullOrWhiteSpace(input))
                 {
                     return input;
