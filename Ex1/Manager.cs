@@ -14,7 +14,7 @@ namespace Ex1
             Console.WriteLine("-------------------------");
             Console.WriteLine("1: Add an officer");
             Console.WriteLine("2: Search officers by name");
-            Console.WriteLine("3: Show officers infomation");
+            Console.WriteLine("3: Show officers information");
             Console.WriteLine("4: Exit");
             Console.WriteLine("Your choice:");
             int choice = Validation.CheckInputIntLimit(1, 4);
