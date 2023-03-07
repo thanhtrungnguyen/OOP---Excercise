@@ -75,7 +75,7 @@ namespace Ex13
                         Add();
                         break;
                     case MenuOption.Update:
-                        Update();
+                        FindAndUpdateEmployee();
                         break;
                     case MenuOption.Exit:
                         return;
@@ -141,6 +141,8 @@ namespace Ex13
             Employee employee = new Employee(id, name, birthDate, phone, email, certificates);
             return employee;
         }
+
+
         private static List<Certificate> CreateCertificates()
         {
             List<Certificate> certificates = new List<Certificate>();
@@ -202,35 +204,79 @@ namespace Ex13
             Console.WriteLine("Added!");
         }
 
-        private static void Update()
+        private static void FindAndUpdateEmployee()
         {
-            switch (ChooseEmployeeType())
+            Console.WriteLine("Enter employee ID:");
+            string id = Validation.CheckInputString();
+            Employee employee = employees.Find(e => e.ID == id);
+            if (employee == null)
             {
-                case EmployeeType.Intern:
-                    UpdateIntern();
-                    break;
-                case EmployeeType.Fresher:
-                    UpdateFresher();
-                    break;
-                case EmployeeType.Experience:
-                    UpdateExperience();
-                    break;
+                Console.WriteLine("Not found!");
+                return;
+            }
+            employee.Show();
+            UpdateEmployee(employee);
+            if (employee.GetType() == typeof(Intern))
+            {
+                UpdateIntern((Intern)employee);
+
+                return;
+            }
+            if (employee.GetType() == typeof(Fresher))
+            {
+                UpdateFresher((Fresher)employee);
+                return;
+            }
+            if (employee.GetType() == typeof(Experience))
+            {
+                UpdateExperience((Experience)employee);
+                return;
             }
         }
 
-        private static void UpdateExperience()
+        private static void UpdateEmployee(Employee employee)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter Employee name:");
+            employee.Name = Validation.CheckInputString();
+            Console.WriteLine("Enter Employee BirthDate:");
+            employee.BirthDate = Validation.CheckInputDate();
+            Console.WriteLine("Enter Employee phone:");
+            employee.Phone = Validation.CheckInputString();
+            Console.WriteLine("Enter Employee email:");
+            employee.Email = Validation.CheckInputString();
+            Console.WriteLine("Enter certificates:");
+            employee.Certificates = CreateCertificates();
+        }
+        private static void UpdateExperience(Experience experience)
+        {
+
+            Console.WriteLine("Enter YearOfExperience:");
+            experience.YearOfExperience = Validation.CheckInputIntLimit(1, 1000);
+            Console.WriteLine("Enter Skill:");
+            experience.Skill = Validation.CheckInputString();
+            Console.WriteLine("Updated!");
         }
 
-        private static void UpdateFresher()
+        private static void UpdateFresher(Fresher fresher)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter GraduationDate:");
+            fresher.GraduationDate = Validation.CheckInputDate();
+            Console.WriteLine("Enter GraduationRank:");
+            fresher.GraduationRank = Validation.CheckInputString();
+            Console.WriteLine("Enter UniversityName:");
+            fresher.UniversityName = Validation.CheckInputString();
+            Console.WriteLine("Updated!");
         }
 
-        private static void UpdateIntern()
+        private static void UpdateIntern(Intern intern)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Enter major:");
+            intern.Major = Validation.CheckInputString();
+            Console.WriteLine("Enter semester:");
+            intern.Semester = Validation.CheckInputIntLimit(1, 100);
+            Console.WriteLine("Enter UniversityName:");
+            intern.UniversityName = Validation.CheckInputString();
+            Console.WriteLine("Added!");
         }
     }
 }
